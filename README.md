@@ -1,1 +1,1 @@
-# ygopro-222DIY-local
+# ygopro-koishibuild
