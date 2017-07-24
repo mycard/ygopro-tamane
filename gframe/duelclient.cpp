@@ -853,6 +853,56 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->WaitFrameSignal(30);
 			break;
 		}
+		//modded
+		//playing music
+		case 11: {
+			if (data == 0) {
+				mainGame->engineMusic->stopAllSounds();
+				break;
+			}
+//			int mcount = mainGame->BGMList[BGM_CUSTOM].size();
+//			if (!mainGame->chkMusicMode->isChecked() || !mainGame->chkEnableMusic->isChecked() || (mcount <= 0))
+			if (!mainGame->chkMusicMode->isChecked())
+				break;
+			char BGMName[1024];
+			myswprintf(textBuffer, L"./sound/BGM/custom/%ls.mp3", dataManager.GetDesc(data));
+			BufferIO::EncodeUTF8(textBuffer, BGMName);
+			if(mainGame->engineMusic->isCurrentlyPlaying(BGMName))
+				break;
+//			bool check = false;
+//			for (int32 i = 0; i < mcount; ++i) {
+//				wchar_t fname[1024];
+//				auto cname = mainGame->BGMList[BGM_CUSTOM][i].c_str();
+//				char pname[1024];
+//				myswprintf(fname, L"./sound/BGM/%ls", cname);
+//				BufferIO::EncodeUTF8(fname, pname);
+//				if (pname == BGMName)
+//					check = true;
+//			}
+//			if (!check)
+//				break;
+			int pscene = mainGame->bgm_scene;
+			if (pscene != BGM_CUSTOM)
+				mainGame->previous_bgm_scene = pscene;
+			mainGame->bgm_scene = BGM_CUSTOM;
+			mainGame->PlayMusic("./test_yield.mp3", false);
+			mainGame->PlayMusic(BGMName, false);
+			break;
+		}
+		case 12: {
+			if (data == 0) {
+				mainGame->engineSound->stopAllSounds();
+				break;
+			}
+			if(!mainGame->chkEnableSound->isChecked())
+				break;
+			char SoundName[1024];
+			myswprintf(textBuffer, L"./sound/custom/%ls.wav", dataManager.GetDesc(data));
+			BufferIO::EncodeUTF8(textBuffer, SoundName);
+			mainGame->engineSound->play2D(SoundName);
+			mainGame->engineSound->setSoundVolume(mainGame->gameConf.sound_volume);
+			break;
+		}
 		}
 		break;
 	}
@@ -1119,9 +1169,16 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			pcard->is_highlighting = true;
 			mainGame->dField.highlighting_card = pcard;
 		}
-		wchar_t ynbuf[256];
-		myswprintf(ynbuf, dataManager.GetSysString(200), dataManager.FormatLocation(l, s), dataManager.GetName(code));
-		myswprintf(textBuffer, L"%ls\n%ls", event_string, ynbuf);
+		int desc = BufferIO::ReadInt32(pbuf);
+ 		if(desc == 0) {
+ 			wchar_t ynbuf[256];
+ 			myswprintf(ynbuf, dataManager.GetSysString(200), dataManager.FormatLocation(l, s), dataManager.GetName(code));
+ 			myswprintf(textBuffer, L"%ls\n%ls", event_string, ynbuf);
+ 		} else if(desc < 2048) {
+ 			myswprintf(textBuffer, dataManager.GetSysString(desc), dataManager.GetName(code));
+ 		} else {
+ 			myswprintf(textBuffer, dataManager.GetDesc(desc), dataManager.GetName(code));
+ 		}
 		mainGame->gMutex.Lock();
 		mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, textBuffer);
 		mainGame->PopupElement(mainGame->wQuery);

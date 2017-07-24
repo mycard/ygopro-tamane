@@ -511,7 +511,10 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			case 2:
 			case 3:
 			case 5:
-			case 10: {
+			//modded
+			case 10:
+			case 11:
+			case 12: {
 				NetServer::SendBufferToPlayer(cur_player[player], STOC_GAME_MSG, offset, pbuf - offset);
 				break;
 			}
@@ -584,7 +587,7 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 		}
 		case MSG_SELECT_EFFECTYN: {
 			player = BufferIO::ReadInt8(pbuf);
-			pbuf += 8;
+			pbuf += 12;
 			WaitforResponse(player);
 			NetServer::SendBufferToPlayer(cur_player[player], STOC_GAME_MSG, offset, pbuf - offset);
 			return 1;

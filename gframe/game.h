@@ -151,7 +151,8 @@ public:
 	std::list<FadingUnit> fadingList;
 	std::vector<int> logParam;
 	std::wstring chatMsg[8];
-	std::vector<std::wstring> BGMList[8];
+	//modded
+	std::vector<std::wstring> BGMList[9];
 
 	int hideChatTimer;
 	bool hideChat;
@@ -184,6 +185,8 @@ public:
 	bool is_siding;
 
 	int bgm_scene;
+	//modded
+	int previous_bgm_scene;
 
 	ClientField dField;
 	DeckBuilder deckBuilder;
@@ -627,6 +630,8 @@ extern Game* mainGame;
 #define BGM_DISADVANTAGE			5
 #define BGM_WIN						6
 #define BGM_LOSE					7
+//modded
+#define BGM_CUSTOM					8
 
 #define DEFAULT_DUEL_RULE			4
 #endif // GAME_H
