@@ -45,9 +45,6 @@ bool Game::Initialize() {
 	chain_when_avail = false;
 	is_building = false;
 	bgm_scene = -1;
-	//modded
-	previous_bgm_scene = -1;
-	
 	memset(&dInfo, 0, sizeof(DuelInfo));
 	memset(chatTiming, 0, sizeof(chatTiming));
 	deckManager.LoadLFList();
@@ -70,7 +67,6 @@ bool Game::Initialize() {
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = guiFont;
 	smgr = device->getSceneManager();
-	//modded
 	device->setWindowCaption(L"YGOPro");
 	device->setResizable(false);
 #ifdef _WIN32
@@ -89,7 +85,6 @@ bool Game::Initialize() {
 	SetWindowsIcon();
 	//main menu
 	wchar_t strbuf[256];
-	//modded
 	myswprintf(strbuf, L"YGOPro Version:%X.0%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
 	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
 	wMainMenu->getCloseButton()->setVisible(false);
@@ -99,6 +94,7 @@ bool Game::Initialize() {
 //	btnTestMode = env->addButton(rect<s32>(10, 135, 270, 165), wMainMenu, BUTTON_TEST_MODE, dataManager.GetSysString(1203));
 	btnDeckEdit = env->addButton(rect<s32>(10, 135, 270, 165), wMainMenu, BUTTON_DECK_EDIT, dataManager.GetSysString(1204));
 	btnModeExit = env->addButton(rect<s32>(10, 170, 270, 200), wMainMenu, BUTTON_MODE_EXIT, dataManager.GetSysString(1210));
+
 	//lan mode
 	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1200));
 	wLanWindow->getCloseButton()->setVisible(false);
@@ -197,8 +193,11 @@ bool Game::Initialize() {
 	env->addStaticText(dataManager.GetSysString(1254), rect<s32>(10, 235, 110, 255), false, false, wHostPrepare);
 	cbDeckSelect = env->addComboBox(rect<s32>(120, 230, 270, 255), wHostPrepare);
 	cbDeckSelect->setMaxSelectionRows(10);
+	btnHostPrepReady = env->addButton(rect<s32>(170, 180, 270, 205), wHostPrepare, BUTTON_HP_READY, dataManager.GetSysString(1218));
+	btnHostPrepNotReady = env->addButton(rect<s32>(170, 180, 270, 205), wHostPrepare, BUTTON_HP_NOTREADY, dataManager.GetSysString(1219));
+	btnHostPrepNotReady->setVisible(false);
 	btnHostPrepStart = env->addButton(rect<s32>(230, 280, 340, 305), wHostPrepare, BUTTON_HP_START, dataManager.GetSysString(1215));
-	btnHostPrepCancel = env->addButton(rect<s32>(350, 280, 460, 305), wHostPrepare, BUTTON_HP_CANCEL, dataManager.GetSysString(1212));
+	btnHostPrepCancel = env->addButton(rect<s32>(350, 280, 460, 305), wHostPrepare, BUTTON_HP_CANCEL, dataManager.GetSysString(1210));
 	//img
 	wCardImg = env->addStaticText(L"", rect<s32>(1, 1, 199, 273), true, false, 0, -1, true);
 	wCardImg->setBackgroundColor(0xc0c0c0c0);
@@ -281,8 +280,7 @@ bool Game::Initialize() {
 	chkAutoSearch = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, CHECKBOX_AUTO_SEARCH, dataManager.GetSysString(1358));
 	chkAutoSearch->setChecked(gameConf.auto_search_limit >= 0);
 	posY += 30;
-	//modded
-	chkEnableSound = env->addCheckBox(gameConf.enable_sound, rect<s32>(posX, posY, posX + 120, posY + 25), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(1380));
+	chkEnableSound = env->addCheckBox(gameConf.enable_sound, rect<s32>(posX, posY, posX + 120, posY + 25), tabSystem, -1, dataManager.GetSysString(1380));
 	chkEnableSound->setChecked(gameConf.enable_sound);
 	scrSoundVolume = env->addScrollBar(true, rect<s32>(posX + 126, posY + 4, posX + 260, posY + 21), tabSystem, SCROLL_VOLUME);
 	scrSoundVolume->setMax(100);
@@ -938,7 +936,6 @@ void Game::RefreshSingleplay() {
 	closedir(dir);
 #endif
 }
-//modded
 void Game::RefreshBGMList() {
 	RefershBGMDir(L"", BGM_DUEL);
 	RefershBGMDir(L"duel/", BGM_DUEL);
@@ -948,7 +945,6 @@ void Game::RefreshBGMList() {
 	RefershBGMDir(L"disadvantage/", BGM_DISADVANTAGE);
 	RefershBGMDir(L"win/", BGM_WIN);
 	RefershBGMDir(L"lose/", BGM_LOSE);
-	RefershBGMDir(L"custom/", BGM_CUSTOM);
 }
 void Game::RefershBGMDir(std::wstring path, int scene) {
 #ifdef _WIN32
@@ -1013,7 +1009,7 @@ void Game::LoadConfig() {
 	gameConf.control_mode = 0;
 	gameConf.draw_field_spell = 1;
 	gameConf.separate_clear_button = 1;
-	gameConf.auto_search_limit = -1;
+	gameConf.auto_search_limit = 0;
 	gameConf.chkIgnoreDeckChanges = 0;
 	gameConf.enable_sound = true;
 	gameConf.sound_volume = 0.5;
@@ -1297,18 +1293,16 @@ void Game::PlayMusic(char* song, bool loop) {
 		engineMusic->setSoundVolume(gameConf.music_volume);
 	}
 }
-//modded
 void Game::PlayBGM(int scene) {
 	if(!mainGame->chkEnableMusic->isChecked())
 		return;
 	if(!mainGame->chkMusicMode->isChecked())
 		scene = BGM_ALL;
 	char BGMName[1024];
-	if (((scene != bgm_scene) && (bgm_scene != BGM_CUSTOM)) || ((scene != previous_bgm_scene) && (bgm_scene == BGM_CUSTOM)) || (soundBGM && soundBGM->isFinished())) {
+	if(scene != bgm_scene || (soundBGM && soundBGM->isFinished())) {
 		int count = BGMList[scene].size();
 		if(count <= 0)
 			return;
-		previous_bgm_scene = bgm_scene;
 		bgm_scene = scene;
 		int bgm = rand() % count;
 		auto name = BGMList[scene][bgm].c_str();

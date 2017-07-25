@@ -151,8 +151,7 @@ public:
 	std::list<FadingUnit> fadingList;
 	std::vector<int> logParam;
 	std::wstring chatMsg[8];
-	//modded
-	std::vector<std::wstring> BGMList[9];
+	std::vector<std::wstring> BGMList[8];
 
 	int hideChatTimer;
 	bool hideChat;
@@ -185,8 +184,6 @@ public:
 	bool is_siding;
 
 	int bgm_scene;
-	//modded
-	int previous_bgm_scene;
 
 	ClientField dField;
 	DeckBuilder deckBuilder;
@@ -284,6 +281,8 @@ public:
 	irr::gui::IGUIComboBox* cbDeckSelect;
 	irr::gui::IGUIStaticText* stHostPrepRule;
 	irr::gui::IGUIStaticText* stHostPrepOB;
+	irr::gui::IGUIButton* btnHostPrepReady;
+	irr::gui::IGUIButton* btnHostPrepNotReady;
 	irr::gui::IGUIButton* btnHostPrepStart;
 	irr::gui::IGUIButton* btnHostPrepCancel;
 	//replay
@@ -489,6 +488,8 @@ extern Game* mainGame;
 #define BUTTON_HP_CANCEL			123
 #define BUTTON_HP_KICK				124
 #define CHECKBOX_HP_READY			125
+#define BUTTON_HP_READY				126
+#define BUTTON_HP_NOTREADY			127
 #define LISTBOX_REPLAY_LIST			130
 #define BUTTON_LOAD_REPLAY			131
 #define BUTTON_CANCEL_REPLAY		132
@@ -630,8 +631,6 @@ extern Game* mainGame;
 #define BGM_DISADVANTAGE			5
 #define BGM_WIN						6
 #define BGM_LOSE					7
-//modded
-#define BGM_CUSTOM					8
 
 #define DEFAULT_DUEL_RULE			4
 #endif // GAME_H
