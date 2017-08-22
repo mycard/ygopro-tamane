@@ -5029,26 +5029,26 @@ int32 field::adjust_step(uint16 step) {
 			winp = 1;
 			rea = 1;
 		}
-		if(core.overdraw[0] && !core.overdraw[1]) {
-			winp = 1;
-			rea = 2;
-		}
+		//if(core.overdraw[0] && !core.overdraw[1]) {
+		//	winp = 1;
+		//	rea = 2;
+		//}
 		if(player[1].lp <= 0 && player[0].lp > 0) {
 			winp = 0;
 			rea = 1;
 		}
-		if(core.overdraw[1] && !core.overdraw[0]) {
-			winp = 0;
-			rea = 2;
-		}
+		//if(core.overdraw[1] && !core.overdraw[0]) {
+		//	winp = 0;
+		//	rea = 2;
+		//}
 		if(player[1].lp <= 0 && player[0].lp <= 0) {
 			winp = PLAYER_NONE;
 			rea = 1;
 		}
-		if(core.overdraw[1] && core.overdraw[0]) {
-			winp = PLAYER_NONE;
-			rea = 2;
-		}
+		//if(core.overdraw[1] && core.overdraw[0]) {
+		//	winp = PLAYER_NONE;
+		//	rea = 2;
+		//}
 		if(winp != 5) {
 			pduel->write_buffer8(MSG_WIN);
 			pduel->write_buffer8(winp);
