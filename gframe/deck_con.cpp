@@ -401,6 +401,9 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			unsigned int limitcode = draging_pointer->second.alias ? draging_pointer->second.alias : draging_pointer->first;
 			if(hovered_pos == 4) {
 				int limit = 3;
+				//modded
+				if(draging_pointer->second.type & TYPE_SPIRIT)
+					limit = 60;
 				if(filterList->count(limitcode))
 					limit = (*filterList)[limitcode];
 				for(size_t i = 0; i < deckManager.current_deck.main.size(); ++i)
@@ -568,6 +571,9 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				} else {
 					unsigned int limitcode = draging_pointer->second.alias ? draging_pointer->second.alias : draging_pointer->first;
 					int limit = 3;
+					//modded
+					if(draging_pointer->second.type & TYPE_SPIRIT)
+						limit = 60;
 					if(filterList->count(limitcode))
 						limit = (*filterList)[limitcode];
 					for(size_t i = 0; i < deckManager.current_deck.main.size(); ++i)

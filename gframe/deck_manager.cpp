@@ -78,7 +78,8 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 	if(!list)
 		return 0;
 	int dc = 0;
-	if(deck.main.size() < 40 || deck.main.size() > 60 || deck.extra.size() > 15 || deck.side.size() > 15)
+	//modded
+	if(deck.main.size() != 60 || deck.extra.size() > 0 || deck.side.size() > 15)
 		return 1;
 	for(size_t i = 0; i < deck.main.size(); ++i) {
 		code_pointer cit = deck.main[i];
@@ -90,7 +91,8 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 		ccount[code]++;
 		dc = ccount[code];
 		auto it = list->find(code);
-		if(dc > 3 || (it != list->end() && dc > it->second))
+		//modded
+		if((dc > 3 && !(cit->second.type & TYPE_SPIRIT)) || (it != list->end() && dc > it->second))
 			return cit->first;
 	}
 	for(size_t i = 0; i < deck.extra.size(); ++i) {

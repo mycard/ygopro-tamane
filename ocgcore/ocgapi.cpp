@@ -66,6 +66,7 @@ extern "C" DECL_DLLEXPORT ptr create_duel(uint32 seed) {
 	duel* pduel = new duel();
 	duel_set.insert(pduel);
 	pduel->random.reset(seed);
+	pduel->lua->call_code_function(0, (char*) "RegisterRules", 0, 0);
 	return (ptr)pduel;
 }
 extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {

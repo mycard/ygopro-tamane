@@ -3440,7 +3440,8 @@ void DuelClient::BroadcastReply(evutil_socket_t fd, short events, void * arg) {
 			hoststr.append(L"][");
 			hoststr.append(dataManager.GetSysString(pHP->host.mode + 1244));
 			hoststr.append(L"][");
-			if(pHP->host.draw_count == 1 && pHP->host.start_hand == 5 && pHP->host.start_lp == 8000
+			//modded
+			if(pHP->host.draw_count == 3 && pHP->host.start_hand == 5 && pHP->host.start_lp == 8000
 			        && !pHP->host.no_check_deck && !pHP->host.no_shuffle_deck && ! pHP->host.enable_priority)
 				hoststr.append(dataManager.GetSysString(1280));
 			else hoststr.append(dataManager.GetSysString(1281));
