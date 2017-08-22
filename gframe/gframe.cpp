@@ -33,17 +33,12 @@ void ClickButton(irr::gui::IGUIElement* btn) {
 }
 
 int main(int argc, char* argv[]) {
-#ifndef _WIN32
-	setlocale(LC_CTYPE, "UTF-8");
-#endif
 #ifdef _WIN32
-#ifndef _DEBUG
 	wchar_t exepath[MAX_PATH];
 	GetModuleFileNameW(NULL, exepath, MAX_PATH);
 	wchar_t* p = wcsrchr(exepath, '\\');
 	*p = '\0';
 	SetCurrentDirectoryW(exepath);
-#endif //_DEBUG
 #endif //_WIN32
 #ifdef _WIN32
 	WORD wVersionRequested;
@@ -99,29 +94,18 @@ int main(int argc, char* argv[]) {
 		} else if(!strcmp(argv[i], "-k")) { // Keep on return
 			exit_on_return = false;
 			keep_on_return = true;
-		} else if(!strcmp(argv[i], "-d")) { // Deck
-			if(i + 2 < argc) { // select deck
-				++i;
-				GetParameterW(ygo::mainGame->gameConf.lastdeck, &argv[i][0]);
-				continue;
-			} else { // open deck
-				exit_on_return = !keep_on_return;
-				if(i < argc) {
-					open_file = true;
-					GetParameterW(open_file_name, &argv[i + 1][0]);
-				}
-				ClickButton(ygo::mainGame->btnDeckEdit);
-				break;
-			}
-		} else if(!strcmp(argv[i], "-c")) { // Create host
-			exit_on_return = !keep_on_return;
-			ygo::mainGame->HideElement(ygo::mainGame->wMainMenu);
-			ClickButton(ygo::mainGame->btnHostConfirm);
-			break;
 		} else if(!strcmp(argv[i], "-j")) { // Join host
 			exit_on_return = !keep_on_return;
 			ClickButton(ygo::mainGame->btnLanMode);
 			ClickButton(ygo::mainGame->btnJoinHost);
+			break;
+		} else if(!strcmp(argv[i], "-d")) { // Deck
+			exit_on_return = !keep_on_return;
+			if(i < argc) {
+				open_file = true;
+				GetParameterW(open_file_name, &argv[i + 1][0]);
+			}
+			ClickButton(ygo::mainGame->btnDeckEdit);
 			break;
 		} else if(!strcmp(argv[i], "-r")) { // Replay
 			exit_on_return = !keep_on_return;

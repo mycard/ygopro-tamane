@@ -39,15 +39,10 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 	if(pduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = pduel->new_card(code);
 		pcard->owner = owner;
-		pcard->sendto_param.position = position;
-		if(location == LOCATION_PZONE) {
-			int32 seq = pduel->game_field->core.duel_rule >= 4 ? sequence * 4 : sequence + 6;
-			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
-		} else {
-			pduel->game_field->add_card(playerid, pcard, location, sequence);
-		}
+		pcard->operation_param = position << 24;
+		pduel->game_field->add_card(playerid, pcard, location, sequence);
 		pcard->current.position = position;
-		if(!(location & (LOCATION_ONFIELD + LOCATION_PZONE)) || (position & POS_FACEUP)) {
+		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
 			pcard->enable_field_effect(true);
 			pduel->game_field->adjust_instant();
 		}
@@ -149,15 +144,8 @@ int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	check_param_count(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 flag = lua_tointeger(L, 1);
-	int32 rule = lua_tointeger(L, 2);
 	pduel->clear();
 	pduel->game_field->core.duel_options = flag;
-	if (rule)
-		pduel->game_field->core.duel_rule = rule;
-	else if (flag & DUEL_OBSOLETE_RULING)
-		pduel->game_field->core.duel_rule = 1;
-	else
-		pduel->game_field->core.duel_rule = 3;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_end(lua_State *L) {

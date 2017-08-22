@@ -4,7 +4,7 @@
 #pragma once
 
 #define _IRR_STATIC_LIB_
-#define IRR_COMPILE_WITH_DX9_DEV_PACK
+#define _IRR_COMPILE_WITH_DX9_DEV_PACK
 #ifdef _WIN32
 
 #include <WinSock2.h>
@@ -28,7 +28,6 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
-#include <locale.h>
 
 #define SD_BOTH 2
 #define SOCKET int
@@ -48,9 +47,13 @@ inline int _wtoi(const wchar_t * s) {
 #endif
 
 #include <irrlicht.h>
-#include <irrKlang.h>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 #include "CGUITTFont.h"
 #include "CGUIImageButton.h"
 #include <iostream>

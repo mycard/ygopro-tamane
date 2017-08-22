@@ -165,7 +165,7 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 		return TRUE;
 	}
 }
-int32 field::select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard) {
+int32 field::select_effect_yes_no(uint16 step, uint8 playerid, card* pcard) {
 	if(step == 0) {
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			returns.ivalue[0] = 1;
@@ -175,7 +175,6 @@ int32 field::select_effect_yes_no(uint16 step, uint8 playerid, uint32 descriptio
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(pcard->data.code);
 		pduel->write_buffer32(pcard->get_info_location());
-		pduel->write_buffer32(description);
 		returns.ivalue[0] = -1;
 		return FALSE;
 	} else {
@@ -337,10 +336,10 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 			flag = ~flag;
 			int32 filter;
 			int32 pzone = 0;
-			if(flag & 0x7f) {
+			if(flag & 0x1f) {
 				returns.bvalue[0] = 1;
 				returns.bvalue[1] = LOCATION_MZONE;
-				filter = flag & 0x7f;
+				filter = flag & 0x1f;
 			} else if(flag & 0x1f00) {
 				returns.bvalue[0] = 1;
 				returns.bvalue[1] = LOCATION_SZONE;
@@ -350,10 +349,10 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 				returns.bvalue[1] = LOCATION_SZONE;
 				filter = (flag >> 14) & 0x3;
 				pzone = 1;
-			} else if(flag & 0x7f0000) {
+			} else if(flag & 0x1f0000) {
 				returns.bvalue[0] = 0;
 				returns.bvalue[1] = LOCATION_MZONE;
-				filter = (flag >> 16) & 0x7f;
+				filter = (flag >> 16) & 0x1f;
 			} else if(flag & 0x1f000000) {
 				returns.bvalue[0] = 0;
 				returns.bvalue[1] = LOCATION_SZONE;
@@ -365,9 +364,7 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 				pzone = 1;
 			}
 			if(!pzone) {
-				if(filter & 0x40) returns.bvalue[2] = 6;
-				else if(filter & 0x20) returns.bvalue[2] = 5;
-				else if(filter & 0x4) returns.bvalue[2] = 2;
+				if(filter & 0x4) returns.bvalue[2] = 2;
 				else if(filter & 0x2) returns.bvalue[2] = 1;
 				else if(filter & 0x8) returns.bvalue[2] = 3;
 				else if(filter & 0x1) returns.bvalue[2] = 0;
@@ -503,21 +500,22 @@ int32 field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uin
 	if(step == 0) {
 		if(count == 0)
 			return TRUE;
+		card* pcard;
 		uint8 avail = s;
 		uint8 fp = playerid;
 		uint32 total = 0;
 		core.select_cards.clear();
 		for(int p = 0; p < 2; ++p) {
 			if(avail) {
-				for(auto cit = player[fp].list_mzone.begin(); cit != player[fp].list_mzone.end(); ++cit) {
-					card* pcard = *cit;
+				for(int j = 0; j < 5; ++j) {
+					pcard = player[fp].list_mzone[j];
 					if(pcard && pcard->get_counter(countertype)) {
 						core.select_cards.push_back(pcard);
 						total += pcard->get_counter(countertype);
 					}
 				}
-				for(auto cit = player[fp].list_szone.begin(); cit != player[fp].list_szone.end(); ++cit) {
-					card* pcard = *cit;
+				for(int j = 0; j < 8; ++j) {
+					pcard = player[fp].list_szone[j];
 					if(pcard && pcard->get_counter(countertype)) {
 						core.select_cards.push_back(pcard);
 						total += pcard->get_counter(countertype);
@@ -538,7 +536,7 @@ int32 field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uin
 		pduel->write_buffer8(core.select_cards.size());
 		std::sort(core.select_cards.begin(), core.select_cards.end(), card::card_operation_sort);
 		for(uint32 i = 0; i < core.select_cards.size(); ++i) {
-			card* pcard = core.select_cards[i];
+			pcard = core.select_cards[i];
 			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);

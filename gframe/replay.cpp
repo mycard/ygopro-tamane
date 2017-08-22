@@ -159,15 +159,18 @@ bool Replay::OpenReplay(const wchar_t* name) {
 	}
 	if(!fp)
 		return false;
+	fseek(fp, 0, SEEK_END);
+	comp_size = ftell(fp) - sizeof(pheader);
+	fseek(fp, 0, SEEK_SET);
 	fread(&pheader, sizeof(pheader), 1, fp);
 	if(pheader.flag & REPLAY_COMPRESSED) {
-		comp_size = fread(comp_data, 1, 0x1000, fp);
+		fread(comp_data, 0x1000, 1, fp);
 		fclose(fp);
 		replay_size = pheader.datasize;
 		if(LzmaUncompress(replay_data, &replay_size, comp_data, &comp_size, pheader.props, 5) != SZ_OK)
 			return false;
 	} else {
-		comp_size = fread(replay_data, 1, 0x20000, fp);
+		fread(replay_data, 0x20000, 1, fp);
 		fclose(fp);
 		replay_size = comp_size;
 	}

@@ -240,7 +240,7 @@ void TagDuel::PlayerReady(DuelPlayer* dp, bool is_ready) {
 	STOC_HS_PlayerChange scpc;
 	scpc.status = (dp->type << 4) | (is_ready ? PLAYERCHANGE_READY : PLAYERCHANGE_NOTREADY);
 	for(int i = 0; i < 4; ++i)
-		if(players[i])
+		if(players[i] && players[i] != dp)
 			NetServer::SendPacketToPlayer(players[i], STOC_HS_PLAYER_CHANGE, scpc);
 	for(auto pit = observers.begin(); pit != observers.end(); ++pit)
 		NetServer::SendPacketToPlayer(*pit, STOC_HS_PLAYER_CHANGE, scpc);
@@ -382,7 +382,9 @@ void TagDuel::TPResult(DuelPlayer* dp, unsigned char tp) {
 	pduel = create_duel(rnd.rand());
 	set_player_info(pduel, 0, host_info.start_lp, host_info.start_hand, host_info.draw_count);
 	set_player_info(pduel, 1, host_info.start_lp, host_info.start_hand, host_info.draw_count);
-	int opt = (int)host_info.duel_rule << 16;
+	int opt = 0;
+	if(host_info.enable_priority)
+		opt |= DUEL_OBSOLETE_RULING;
 	if(host_info.no_shuffle_deck)
 		opt |= DUEL_PSEUDO_SHUFFLE;
 	opt |= DUEL_TAG_MODE;
@@ -584,7 +586,7 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 		}
 		case MSG_SELECT_EFFECTYN: {
 			player = BufferIO::ReadInt8(pbuf);
-			pbuf += 12;
+			pbuf += 8;
 			WaitforResponse(player);
 			NetServer::SendBufferToPlayer(cur_player[player], STOC_GAME_MSG, offset, pbuf - offset);
 			return 1;
@@ -1289,22 +1291,6 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 				NetServer::ReSendToPlayer(*oit);
 			break;
 		}
-		case MSG_ROCK_PAPER_SCISSORS: {
-			player = BufferIO::ReadInt8(pbuf);
-			WaitforResponse(player);
-			NetServer::SendBufferToPlayer(players[player], STOC_GAME_MSG, offset, pbuf - offset);
-			return 1;
-		}
-		case MSG_HAND_RES: {
-			pbuf += 1;
-			NetServer::SendBufferToPlayer(players[0], STOC_GAME_MSG, offset, pbuf - offset);
-			NetServer::ReSendToPlayer(players[1]);
-			NetServer::ReSendToPlayer(players[2]);
-			NetServer::ReSendToPlayer(players[3]);
-			for (auto oit = observers.begin(); oit != observers.end(); ++oit)
-				NetServer::ReSendToPlayer(*oit);
-			break;
-		}
 		case MSG_ANNOUNCE_RACE: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 5;
@@ -1597,7 +1583,17 @@ int TagDuel::MessageHandler(long fduel, int type) {
 		return 0;
 	char msgbuf[1024];
 	get_log_message(fduel, (byte*)msgbuf);
-	mainGame->AddDebugMsg(msgbuf);
+	if(enable_log == 1) {
+		wchar_t wbuf[1024];
+		BufferIO::DecodeUTF8(msgbuf, wbuf);
+		mainGame->AddChatMsg(wbuf, 9);
+	} else if(enable_log == 2) {
+		FILE* fp = fopen("error.log", "at");
+		if(!fp)
+			return 0;
+		fprintf(fp, "[Script error:] %s\n", msgbuf);
+		fclose(fp);
+	}
 	return 0;
 }
 void TagDuel::TagTimer(evutil_socket_t fd, short events, void* arg) {
