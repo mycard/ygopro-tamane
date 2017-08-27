@@ -2485,7 +2485,8 @@ int32 field::process_idle_command(uint16 step) {
 		nil_event.event_code = EVENT_FREE_CHAIN;
 		core.to_bp = TRUE;
 		core.to_ep = TRUE;
-		if((!(core.duel_options & DUEL_ATTACK_FIRST_TURN) && infos.turn_id == 1) || infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
+		//modded
+		if((infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
 			core.to_bp = FALSE;
 		if(infos.phase == PHASE_MAIN1) {
 			for(uint32 i = 0; i < 5; ++i) {
@@ -2498,14 +2499,19 @@ int32 field::process_idle_command(uint16 step) {
 			if(core.to_bp && (must_attack || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_EP)))
 				core.to_ep = FALSE;
 		}
+		//modded
 		if((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1))
 		        || (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2))) {
 			if(core.to_bp && core.to_ep) {
-				core.select_options.clear();
-				core.select_options.push_back(80);
-				core.select_options.push_back(81);
-				add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, infos.turn_player, 0);
-				core.units.begin()->step = 11;
+				//core.select_options.clear();
+				//core.select_options.push_back(80);
+				//core.select_options.push_back(81);
+				//add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, infos.turn_player, 0);
+				//core.units.begin()->step = 11;
+				core.units.begin()->arg1 = 6;
+				core.units.begin()->step = 10;
+				reset_phase(infos.phase);
+				adjust_all();
 			} else if(core.to_bp) {
 				core.units.begin()->arg1 = 6;
 				core.units.begin()->step = 10;
