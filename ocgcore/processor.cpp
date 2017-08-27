@@ -2486,7 +2486,7 @@ int32 field::process_idle_command(uint16 step) {
 		core.to_bp = TRUE;
 		core.to_ep = TRUE;
 		//modded
-		if((infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
+		if(infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
 			core.to_bp = FALSE;
 		if(infos.phase == PHASE_MAIN1) {
 			for(uint32 i = 0; i < 5; ++i) {
