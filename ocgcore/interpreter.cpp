@@ -227,6 +227,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "ResetNegateEffect", scriptlib::card_reset_negate_effect },
 	{ "AssumeProperty", scriptlib::card_assume_prop },
 	{ "SetSPSummonOnce", scriptlib::card_set_spsummon_once },
+	{ "FilterEffect", scriptlib::card_filter_effect },
 	{ NULL, NULL }
 };
 
@@ -510,6 +511,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "VenomSwampCheck", scriptlib::duel_venom_swamp_check },
 	{ "SwapDeckAndGrave", scriptlib::duel_swap_deck_and_grave },
 	{ "MajesticCopy", scriptlib::duel_majestic_copy },
+	{ "FilterPlayerEffect", scriptlib::duel_filter_player_effect },
 	{ NULL, NULL }
 };
 
