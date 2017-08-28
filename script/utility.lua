@@ -70,6 +70,27 @@ function Auxiliary.RegisterRules()
 		return true
 	end)
 	ex:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	ex:SetValue(1)
+	Duel.RegisterEffect(ex,0)
+	local ex=Effect.GlobalEffect()
+	ex:SetType(EFFECT_TYPE_FIELD)
+	ex:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
+	ex:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	ex:SetTarget(function(e,c)
+		return true
+	end)
+	ex:SetValue(1)
+	ex:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	Duel.RegisterEffect(ex,0)
+	local ex=Effect.GlobalEffect()
+	ex:SetType(EFFECT_TYPE_FIELD)
+	ex:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+	ex:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	ex:SetTarget(function(e,c)
+		return true
+	end)
+	ex:SetValue(1)
+	ex:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	Duel.RegisterEffect(ex,0)
 	--extra draw for the player who goes next
 	local ex=Effect.GlobalEffect()
@@ -80,7 +101,33 @@ function Auxiliary.RegisterRules()
 		e:Reset()
 	end)
 	Duel.RegisterEffect(ex,0)
+	--attack announce and defense announce
+	local ex=Effect.GlobalEffect()
+	ex:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	ex:SetCode(EVENT_ATTACK_ANNOUNCE)
+	ex:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	ex:SetOperation(function(e)
+		local at=Duel.GetAttacker()
+		local tp=1-at:GetControler()
+		local dg=Duel.GetMatchingGroup(Auxiliary.IsCanDefenseAnnounce,tp,LOCATION_MZONE,0,nil)
+		if dg:GetCount()>0 and Duel.SelectYesNo(tp,300) then
+			Duel.Hint(HINT_SELECTMSG,tp,301)
+			local g=dg:Select(tp,1,1,nil)
+			Duel.HintSelection(g)
+			local tc=g:GetFirst()
+			Duel.ChangePosition(tc,POS_FACEUP_DEFENSE)
+			Duel.CalculateDamage(at,tc)
+		end
+	end)
+	Duel.RegisterEffect(ex,0)
 end
+function Auxiliary.IsCreature(c)
+	return c:IsType(TYPE_MONSTER) and not c:IsType(TYPE_CONTINUOUS)
+end
+function Auxiliary.IsCanDefenseAnnounce(c)
+	return Auxiliary.IsCreature(c) and c:IsAttackPos()
+end
+
 
 function Auxiliary.Stringid(code,id)
 	return code*16+id
