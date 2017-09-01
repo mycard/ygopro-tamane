@@ -82,6 +82,26 @@ function Auxiliary.RegisterRules()
 	ex:SetValue(1)
 	ex:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	Duel.RegisterEffect(ex,0)
+	--win
+	local ex=Effect.GlobalEffect()
+	ex:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	ex:SetCode(EVENT_ADJUST)
+	ex:SetCondition(function(e)
+		return Duel.GetFieldGroupCount(0,LOCATION_DECK,0)==0 or Duel.GetFieldGroupCount(1,LOCATION_DECK,0)==0
+	end)
+	ex:SetOperation(function(e)
+		local win={}
+		win[0]=Duel.GetFieldGroupCount(0,LOCATION_DECK,0)==0
+		win[1]=Duel.GetFieldGroupCount(1,LOCATION_DECK,0)==0
+		if win[0] and win[1] then
+			Duel.Win(0,1)
+		elseif win[1] and win[0] then
+			Duel.Win(1,1)
+		else
+			Duel.Win(PLAYER_NONE,1)
+		end
+	end)
+	Duel.RegisterEffect(ex,0)
 	--extra draw for the player who goes next
 	local ex=Effect.GlobalEffect()
 	ex:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
@@ -94,7 +114,7 @@ function Auxiliary.RegisterRules()
 	--attack announce and defense announce
 	local ex=Effect.GlobalEffect()
 	ex:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	ex:SetCode(EVENT_ATTACK_ANNOUNCE)
+	ex:SetCode(EVENT_BATTLE_CONFIRM)
 	ex:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	ex:SetOperation(function(e)
 		local at=Duel.GetAttacker()
@@ -110,12 +130,36 @@ function Auxiliary.RegisterRules()
 		end
 	end)
 	Duel.RegisterEffect(ex,0)
+	local ex=Effect.GlobalEffect()
+	ex:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	ex:SetCode(EVENT_BATTLED)
+	ex:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	ex:SetOperation(function(e)
+		local at=Duel.GetAttacker()
+		local df=Duel.GetAttackTarget()
+		if not df then
+			Duel.Draw(at:GetControler(),Auxiliary.GetDamageValue(at),REASON_RULE)
+		else
+			local g=Group.CreateGroup()
+			if at:GetAttack()>=df:GetDefense() then
+				g:AddCard(df)
+			end
+			if df:GetAttack()>=at:GetDefense() then
+				g:AddCard(at)
+			end
+			Duel.Destroy(g,REASON_RULE)
+		end
+	end)
+	Duel.RegisterEffect(ex,0)
 end
 function Auxiliary.IsCreature(c)
 	return c:IsType(TYPE_MONSTER) and not c:IsType(TYPE_CONTINUOUS)
 end
 function Auxiliary.IsCanDefenseAnnounce(c)
 	return Auxiliary.IsCreature(c) and c:IsAttackPos()
+end
+function Auxiliary.GetDamageValue(c)
+	return c:GetOriginalLeftScale()
 end
 
 
