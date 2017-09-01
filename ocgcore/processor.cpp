@@ -3350,12 +3350,13 @@ int32 field::process_battle_command(uint16 step) {
 		uint8 bd[2];
 		calculate_battle_damage(&damchange, &reason_card, bd);
 		if(bd[0]) {
+		//modded
 			effect* indestructable_effect = core.attacker->is_affected_by_effect(EFFECT_INDESTRUCTABLE_BATTLE, core.attack_target);
 			if(indestructable_effect) {
-				pduel->write_buffer8(MSG_HINT);
-				pduel->write_buffer8(HINT_CARD);
-				pduel->write_buffer8(0);
-				pduel->write_buffer32(indestructable_effect->owner->data.code);
+				//pduel->write_buffer8(MSG_HINT);
+				//pduel->write_buffer8(HINT_CARD);
+				//pduel->write_buffer8(0);
+				//pduel->write_buffer32(indestructable_effect->owner->data.code);
 				bd[0] = FALSE;
 			} else
 				core.attacker->set_status(STATUS_BATTLE_RESULT, TRUE);
@@ -3363,10 +3364,10 @@ int32 field::process_battle_command(uint16 step) {
 		if(bd[1]) {
 			effect* indestructable_effect = core.attack_target->is_affected_by_effect(EFFECT_INDESTRUCTABLE_BATTLE, core.attacker);
 			if(indestructable_effect) {
-				pduel->write_buffer8(MSG_HINT);
-				pduel->write_buffer8(HINT_CARD);
-				pduel->write_buffer8(0);
-				pduel->write_buffer32(indestructable_effect->owner->data.code);
+				//pduel->write_buffer8(MSG_HINT);
+				//pduel->write_buffer8(HINT_CARD);
+				//pduel->write_buffer8(0);
+				//pduel->write_buffer32(indestructable_effect->owner->data.code);
 				bd[1] = FALSE;
 			} else
 				core.attack_target->set_status(STATUS_BATTLE_RESULT, TRUE);
