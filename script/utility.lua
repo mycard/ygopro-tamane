@@ -159,7 +159,7 @@ function Auxiliary.IsCanDefenseAnnounce(c)
 	return Auxiliary.IsCreature(c) and c:IsAttackPos()
 end
 function Auxiliary.GetDamageValue(c)
-	return c:GetOriginalLeftScale()
+	return c:GetLevel()
 end
 
 
